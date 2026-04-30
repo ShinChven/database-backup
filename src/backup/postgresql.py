@@ -14,6 +14,10 @@ log = get_logger(__name__)
 
 
 class PostgreSQLBackupJob(BackupJob):
+    # pg_dump --format=custom produces a binary archive, not plain SQL.
+    # Use .dump.gz so the filename reflects that pg_restore is required.
+    DUMP_EXTENSION = "dump"
+
     def __init__(self, instance: InstanceConfig, schema: SchemaConfig, storage: S3Storage):
         super().__init__(instance, schema, storage)
 

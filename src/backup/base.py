@@ -31,6 +31,10 @@ class BackupJob(ABC):
 
     # ── Subclass contract ─────────────────────────────────────────────────────
 
+    # File extension for the uncompressed dump. Subclasses override when the
+    # dump is not plain SQL (e.g. pg_dump custom format is a binary archive).
+    DUMP_EXTENSION = "sql"
+
     @abstractmethod
     def dump(self, dest: Path) -> None:
         """Write an uncompressed dump to `dest`. Raise on failure."""
@@ -43,7 +47,7 @@ class BackupJob(ABC):
 
     def _filename(self) -> str:
         ts = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
-        return f"{self.schema.name}_{ts}.sql.gz"
+        return f"{self.schema.name}_{ts}.{self.DUMP_EXTENSION}.gz"
 
     # ── Public entry point ────────────────────────────────────────────────────
 
@@ -52,7 +56,7 @@ class BackupJob(ABC):
         schema_name = self.schema.name
 
         with tempfile.TemporaryDirectory(prefix="dbbackup_") as tmpdir:
-            raw_path = Path(tmpdir) / f"{schema_name}.sql"
+            raw_path = Path(tmpdir) / f"{schema_name}.{self.DUMP_EXTENSION}"
             gz_path = Path(tmpdir) / self._filename()
 
             # 1. Dump

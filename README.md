@@ -111,7 +111,10 @@ instances:
 #### S3 key format
 
 ```
-{prefix}/{instance_name}/{schema_name}/{schema_name}_YYYYMMDD_HHMMSS.sql.gz
+{prefix}/{instance_name}/{schema_name}/{schema_name}_YYYYMMDD_HHMMSS.{ext}.gz
+
+# {ext} is "sql" for MySQL (mysqldump plain SQL)
+# {ext} is "dump" for PostgreSQL (pg_dump --format=custom — restore with pg_restore)
 ```
 
 Retention operations are scoped to each schema prefix, so schemas never interfere with each other.
