@@ -17,8 +17,9 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY src/ ./src/
 
-# Config is mounted at runtime
-VOLUME ["/app/config.yaml"]
+# Config is mounted at runtime; backups are stored here if local storage is enabled
+RUN mkdir -p /app/backups && chown backup:backup /app/backups
+VOLUME ["/app/config.yaml", "/app/backups"]
 
 USER backup
 

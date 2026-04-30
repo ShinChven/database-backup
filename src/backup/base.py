@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import gzip
+import os
 import shutil
 import tempfile
 from abc import ABC, abstractmethod
@@ -67,10 +68,16 @@ class BackupJob(ABC):
             with raw_path.open("rb") as f_in, gzip.open(gz_path, "wb") as f_out:
                 shutil.copyfileobj(f_in, f_out)
 
-            # 4. Upload
-            self.storage.upload(gz_path, instance_name, schema_name)
+            # 4. Optional local copy (if BACKUP_LOCAL_PATH env var is set)
+            local_path_env = os.environ.get("BACKUP_LOCAL_PATH")
+            if local_path_env:
+                dest = Path(local_path_env) / instance_name / schema_name / self._filename()
+                dest.parent.mkdir(parents=True, exist_ok=True)
+                log.info("Copying to local path", extra={"path": str(dest)})
+                shutil.copy2(gz_path, dest)
 
-            # 5. Retention
+            # 5. S3 Upload & Retention
+            self.storage.upload(gz_path, instance_name, schema_name)
             self.storage.apply_retention(instance_name, schema_name, self.schema.keep)
 
         log.info("Backup complete", extra={"instance": instance_name, "schema": schema_name})

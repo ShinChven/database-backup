@@ -1,8 +1,12 @@
 s3:
   bucket: my-backup-bucket
-  prefix: db-backups        # Optional. Keys will be: {prefix}/{instance}/{schema}/{schema}_YYYYMMDD_HHMMSS.sql.gz
+  prefix: db-backups          # Optional. Omit to write to bucket root.
   region: ap-southeast-1
-  # endpoint_url: https://your-minio.example.com   # Uncomment for MinIO / R2
+  # endpoint_url: https://your-minio.example.com  # For MinIO / Cloudflare R2
+
+local:
+  path: /app/backups
+  # keep: 7                   # Optional. If set, overrides the global default for local storage.
 
 defaults:
   keep: 7                   # How many backup files to retain per schema

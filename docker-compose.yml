@@ -2,7 +2,10 @@ services:
   backup:
     image: ghcr.io/shinchven/database-backup:latest
     pull_policy: always
+    environment:
+      - BACKUP_LOCAL_PATH=/app/backups
     env_file: .env
     volumes:
       - ./config.yaml:/app/config.yaml:ro
+      - ./backups:/app/backups
     restart: unless-stopped
