@@ -1,6 +1,7 @@
 services:
   backup:
-    build: .
+    image: ghcr.io/shinchven/database-backup:latest
+    pull_policy: always
     env_file: .env
     volumes:
       - ./config.yaml:/app/config.yaml:ro
