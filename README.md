@@ -150,19 +150,6 @@ Set `AWS_ENDPOINT_URL=http://localhost:4566` in your `.env` to point at LocalSta
 
 ---
 
-## Running Tests
-
-```bash
-python3 -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt -r requirements-dev.txt
-pytest tests/ -v
-```
-
-Tests use `unittest.mock` for subprocess calls (no real DB needed) and [moto](https://github.com/getmoto/moto) to mock AWS S3.
-
----
-
 ## Project Structure
 
 ```
@@ -171,7 +158,6 @@ Tests use `unittest.mock` for subprocess calls (no real DB needed) and [moto](ht
 ├── docker-compose.yml
 ├── config.example.yaml
 ├── requirements.txt
-├── requirements-dev.txt
 ├── .env.example
 └── src/
     ├── main.py              # Entrypoint
