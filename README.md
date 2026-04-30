@@ -43,6 +43,23 @@ docker compose logs -f backup
 
 ---
 
+## Manual Triggers
+
+You can trigger backups manually without waiting for the next cron tick by using the `--once` flag. This is useful for testing or performing one-off backups.
+
+### Run all backups once
+```bash
+docker compose exec backup python -m src.main --once
+```
+
+### Run a specific instance or schema
+You can filter which backups to run using `--instance` and `--schema`:
+```bash
+docker compose exec backup python -m src.main --once --instance prod-postgres --schema app_db
+```
+
+---
+
 ## Configuration
 
 ### `config.yaml`

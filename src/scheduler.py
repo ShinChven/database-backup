@@ -23,7 +23,7 @@ def _make_job(instance: InstanceConfig, schema: SchemaConfig, storage: S3Storage
     return MySQLBackupJob(instance, schema, storage)
 
 
-def _run_job(instance: InstanceConfig, schema: SchemaConfig, storage: S3Storage) -> None:
+def run_job(instance: InstanceConfig, schema: SchemaConfig, storage: S3Storage) -> None:
     """Wrapper that catches all exceptions so a failing job never kills the scheduler."""
     try:
         job = _make_job(instance, schema, storage)
@@ -34,6 +34,28 @@ def _run_job(instance: InstanceConfig, schema: SchemaConfig, storage: S3Storage)
             exc_info=True,
             extra={"instance": instance.name, "schema": schema.name},
         )
+
+
+def run_all_once(
+    config: AppConfig,
+    instance_filter: Optional[str] = None,
+    schema_filter: Optional[str] = None,
+) -> None:
+    """Run all (or filtered) backup jobs once and exit."""
+    storage = S3Storage(
+        bucket=config.s3.bucket,
+        region=config.s3.region,
+        prefix=config.s3.prefix,
+        endpoint_url=config.s3.endpoint_url,
+    )
+
+    for instance in config.instances:
+        if instance_filter and instance.name != instance_filter:
+            continue
+        for schema in instance.schemas:
+            if schema_filter and schema.name != schema_filter:
+                continue
+            run_job(instance, schema, storage)
 
 
 def build_scheduler(config: AppConfig) -> BlockingScheduler:
@@ -59,7 +81,7 @@ def build_scheduler(config: AppConfig) -> BlockingScheduler:
                 continue
 
             scheduler.add_job(
-                _run_job,
+                run_job,
                 trigger=trigger,
                 id=job_id,
                 args=[instance, schema, storage],
