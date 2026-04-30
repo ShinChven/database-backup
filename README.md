@@ -113,6 +113,19 @@ Copy `.env.example` to `.env` and fill in your values. Credentials are never bak
 
 ---
 
+## Persistence & Volumes
+
+The image declares **no `VOLUME` directives**. You decide what to persist by mounting the two paths the app uses:
+
+| Container path | Purpose | How to provide it |
+|---|---|---|
+| `/app/config.yaml` | YAML config (read at startup) | Bind-mount your `config.yaml`, **or** bake it in via a downstream `Dockerfile` with `COPY config.yaml /app/config.yaml` |
+| `/app/backups` | Local copy of dumps when `BACKUP_LOCAL_PATH=/app/backups` is set | Bind-mount a host directory (or named volume). Skip the mount if you only upload to S3 — dumps are written to a temp dir and removed after upload. |
+
+If you skip both mounts, the container still runs against S3 only, but config has to come from somewhere — supply it via bind mount or a derived image.
+
+---
+
 ## Backup Verification
 
 Before any upload, the dump is verified:
